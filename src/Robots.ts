@@ -137,10 +137,16 @@ function parsePattern(pattern: string): string | RegExp {
 		return pattern;
 	}
 
+	const isStartOfPath = pattern.charAt(0) === "/";
+
 	pattern = pattern
 		.replace(regexSpecialChars, "\\$&")
 		.replace(wildCardPattern, "(?:.*)")
 		.replace(endOfLinePattern, "$");
+
+	if (isStartOfPath) {
+		pattern = "^" + pattern;
+	}
 
 	return new RegExp(pattern);
 }

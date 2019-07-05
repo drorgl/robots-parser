@@ -1,21 +1,27 @@
-import {expect} from "chai";
+import { expect } from "chai";
 import "mocha";
-import {Robots as robotsParser} from "../src/Robots";
+import { Robots as robotsParser } from "../src/Robots";
 
 function testRobots(url: string, contents: string, allowed: string[], disallowed: string[]) {
-	const robots = new robotsParser(url, contents);
+	describe(`testing ${url}`, () => {
+		const robots = new robotsParser(url, contents);
 
-	allowed.forEach((url_) => {
-		expect(robots.isAllowed(url_)).to.equal(true);
-	});
+		allowed.forEach((url_) => {
+			it(`checking ${url_} is allowed`, () => {
+				expect(robots.isAllowed(url_)).to.equal(true);
+			});
+		});
 
-	disallowed.forEach((url_) => {
-		expect(robots.isDisallowed(url_)).to.equal(true);
+		disallowed.forEach((url_) => {
+			it(`checking ${url_} is disallowed`, () => {
+				expect(robots.isDisallowed(url_)).to.equal(true);
+			});
+		});
 	});
 }
 
 describe("Robots", () => {
-	it("should parse the disallow directive", () => {
+	describe("should parse the disallow directive", () => {
 		const contents = [
 			"User-agent: *",
 			"Disallow: /fish/",
@@ -36,7 +42,7 @@ describe("Robots", () => {
 		testRobots("http://www.example.com/robots.txt", contents, allowed, disallowed);
 	});
 
-	it("should parse the allow directive", () => {
+	describe("should parse the allow directive", () => {
 		const contents = [
 			"User-agent: *",
 			"Disallow: /fish/",
@@ -60,7 +66,7 @@ describe("Robots", () => {
 		testRobots("http://www.example.com/robots.txt", contents, allowed, disallowed);
 	});
 
-	it("should parse patterns", () => {
+	describe("should parse patterns", () => {
 		const contents = [
 			"User-agent: *",
 			"Disallow: /fish*.php",
@@ -82,7 +88,7 @@ describe("Robots", () => {
 		testRobots("http://www.example.com/robots.txt", contents, allowed, disallowed);
 	});
 
-	it("should have the correct order precedence for allow and disallow", () => {
+	describe("should have the correct order precedence for allow and disallow", () => {
 		const contents = [
 			"User-agent: *",
 			"Disallow: /fish*.php",
@@ -106,7 +112,7 @@ describe("Robots", () => {
 		testRobots("http://www.example.com/robots.txt", contents, allowed, disallowed);
 	});
 
-	it("should ignore rules that are not in a group", () => {
+	describe("should ignore rules that are not in a group", () => {
 		const contents = [
 			"Disallow: /secret.html",
 			"Disallow: /test",
@@ -121,7 +127,7 @@ describe("Robots", () => {
 		testRobots("http://www.example.com/robots.txt", contents, allowed, []);
 	});
 
-	it("should ignore comments", () => {
+	describe("should ignore comments", () => {
 		const contents = [
 			"#",
 			"# This is a comment",
@@ -147,7 +153,7 @@ describe("Robots", () => {
 		testRobots("http://www.example.com/robots.txt", contents, allowed, disallowed);
 	});
 
-	it("should ignore invalid lines", () => {
+	describe("should ignore invalid lines", () => {
 		const contents = [
 			"invalid line",
 			"User-agent: *",
@@ -171,7 +177,7 @@ describe("Robots", () => {
 		testRobots("http://www.example.com/robots.txt", contents, allowed, disallowed);
 	});
 
-	it("should ignore empty user-agent lines", () => {
+	describe("should ignore empty user-agent lines", () => {
 		const contents = [
 			"User-agent:",
 			"Disallow: /fish/",
@@ -225,7 +231,7 @@ describe("Robots", () => {
 		});
 	});
 
-	it("should handle Unicode, urlencoded and punycode URLs", () => {
+	describe("should handle Unicode, urlencoded and punycode URLs", () => {
 		const contents = [
 			"User-agent: *",
 			"Disallow: /secret.html",
@@ -249,7 +255,7 @@ describe("Robots", () => {
 		testRobots("http://www.m%C3%BCnich.com/robots.txt", contents, allowed, disallowed);
 	});
 
-	it("should handle Unicode and urlencoded paths", () => {
+	describe("should handle Unicode and urlencoded paths", () => {
 		const contents = [
 			"User-agent: *",
 			"Disallow: /%CF%80",
@@ -298,7 +304,7 @@ describe("Robots", () => {
 		testRobots("http://www.example.com/robots.txt", contents, allowed, disallowed);
 	});
 
-	it("should handle lone high / low surrogates", () => {
+	describe("should handle lone high / low surrogates", () => {
 		const contents = [
 			"User-agent: *",
 			"Disallow: /\uD800",
@@ -316,7 +322,7 @@ describe("Robots", () => {
 		testRobots("http://www.example.com/robots.txt", contents, allowed, disallowed);
 	});
 
-	it("should ignore host case", () => {
+	describe("should ignore host case", () => {
 		const contents = [
 			"User-agent: *",
 			"Disallow: /secret.html",
@@ -602,5 +608,20 @@ describe("Robots", () => {
 
 		expect(robots.getMatchingLineNumber("http://www.example.com/test.html", "a")).to.equal(10);
 		expect(robots.getMatchingLineNumber("http://www.example.com/test.html", "b")).to.equal(14);
+	});
+
+	it("should check appropriate folder wildcards", () => {
+		const rules = [
+			"User-agent: *",
+			"Disallow: /dir*",
+		];
+
+		const robots = new robotsParser("http://www.example.com/robots.txt", rules.join("\n"));
+
+		expect(robots.isAllowed("http://www.example.com/test.html")).to.eq(true);
+		expect(robots.isAllowed("http://www.example.com/directory.html")).to.eq(false);
+		expect(robots.isAllowed("http://www.example.com/dirty/test.html")).to.eq(false);
+		expect(robots.isAllowed("http://www.example.com/folder/dir.html")).to.eq(true);
+		expect(robots.isAllowed("http://www.example.com/hello/world/dir/test.html")).to.eq(true);
 	});
 });
