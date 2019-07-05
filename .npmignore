@@ -1,0 +1,14 @@
+.nyc_output
+.vscode
+coverage
+docs
+examples
+node_modules
+src
+test
+.gitignore
+.npmignore
+.nycrc
+tsconfig.json
+tslint.json
+drorgl-sitemapper-*

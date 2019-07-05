@@ -1,2 +1,6 @@
 node_modules
 report
+/.nyc_output
+/coverage
+/dist
+/docs
