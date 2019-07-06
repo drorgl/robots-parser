@@ -89,7 +89,7 @@ Returns the preferred host name specified by the `host:` directive or null if th
 ## Test
 
 ```
-npm run tes
+npm run test
 ```
 
 ## Coverage
