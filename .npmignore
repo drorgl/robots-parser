@@ -11,4 +11,4 @@ test
 .nycrc
 tsconfig.json
 tslint.json
-drorgl-sitemapper-*
+drorgl-robots-parser-*
