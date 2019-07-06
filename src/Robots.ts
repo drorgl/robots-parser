@@ -355,16 +355,15 @@ export class Robots {
 	}
 
 	/**
-	 * Returns true if allowed, false if not allowed.
+	 * Returns true if crawling the specified URL is allowed for the specified user-agent.
 	 *
-	 * Will return undefined if the URL is not valid for
-	 * this robots.txt file.
+	 * Will return undefined if the URL is not valid for this robots.txt file.
 	 *
 	 * @param  {string}  urlPath
 	 * @param  {string?}  ua
 	 * @return {boolean?}
 	 */
-	public isAllowed(urlPath: string, ua?: string): boolean {
+	public isAllowed(urlPath: string, ua?: string): boolean | undefined {
 		const rule = this._getRule(urlPath, ua);
 
 		if (typeof rule === "undefined") {
@@ -388,32 +387,34 @@ export class Robots {
 	 * @param  {string?}  ua
 	 * @return {number?}
 	 */
-	public getMatchingLineNumber(urlPath: string, ua?: string): number {
+	public getMatchingLineNumber(urlPath: string, ua?: string): number | undefined {
 		const rule = this._getRule(urlPath, ua);
 
 		return rule ? rule.lineNumber : -1;
 	}
 
 	/**
-	 * Returns the opposite of isAllowed()
+	 * Returns true if crawling the specified URL is not allowed for the specified user-agent.
+	 *
+	 * will return `undefined` if the URL isn't valid for this robots.txt.
 	 *
 	 * @param  {string}  urlPath
 	 * @param  {string?}  ua
 	 * @return {boolean}
 	 */
-	public isDisallowed(urlPath?: string, ua?: string) {
+	public isDisallowed(urlPath?: string, ua?: string): boolean | undefined {
 		return !this.isAllowed(urlPath, ua);
 	}
 
 	/**
-	 * Gets the crawl delay if there is one.
+	 * The number of seconds the specified user-agent should wait between requests.
 	 *
 	 * Will return undefined if there is no crawl delay set.
 	 *
 	 * @param  {string} ua
 	 * @return {number?}
 	 */
-	public getCrawlDelay(ua?: string): number {
+	public getCrawlDelay(ua?: string): number | undefined {
 		const userAgent = formatUserAgent(ua || "*");
 		const uaHasRules = this._rules[userAgent];
 		if (uaHasRules) {
@@ -423,16 +424,16 @@ export class Robots {
 	}
 
 	/**
-	 * Returns the preferred host if there is one.
+	 * Returns the preferred host name specified by the `host:` directive or null if there isn't one.
 	 *
 	 * @return {string?}
 	 */
-	public getPreferredHost(): string {
+	public getPreferredHost(): string | null {
 		return this._preferredHost;
 	}
 
 	/**
-	 * Returns an array of sitemap URLs if there are any.
+	 * Returns an array of sitemap URLs specified by the `sitemap:` directive.
 	 *
 	 * @return {Array.<string>}
 	 */
